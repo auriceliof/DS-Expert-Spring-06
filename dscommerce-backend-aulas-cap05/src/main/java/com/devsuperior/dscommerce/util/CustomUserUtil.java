@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 public class CustomUserUtil {
 	
 	public String getLoggedUsername() {
-		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
 		return jwtPrincipal.getClaim("username");

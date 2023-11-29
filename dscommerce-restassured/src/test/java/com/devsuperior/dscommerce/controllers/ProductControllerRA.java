@@ -131,7 +131,154 @@ public class ProductControllerRA {
 			.body("imgUrl", equalTo("https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/1-big.jpg"))
 			.body("categories.id", hasItems(2, 3));
 	}
+	
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidName() throws JSONException {		
+		postProductInstance.put("name", "ab");
+		JSONObject newProduct = new JSONObject(postProductInstance);
+		
+		given()
+			.header("Content-type", "application/json")
+			.header("Authorization", "Bearer " + adminToken)
+			.body(newProduct)
+			.contentType(ContentType.JSON)
+			.accept(ContentType.JSON)
+		.when()
+			.post("/products")
+		.then()
+			.statusCode(422)
+			.body("errors.message[0]", equalTo("Nome precisar ter de 3 a 80 caracteres"));
+	}
+	
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidDescription() throws JSONException {
+		postProductInstance.put("description", "ab");
+		JSONObject newProduct = new JSONObject(postProductInstance);
+		
+		given()
+			.header("Content-type", "application/json")
+			.header("Authorization", "Bearer " + adminToken)
+			.body(newProduct)
+			.contentType(ContentType.JSON)
+			.accept(ContentType.JSON)
+		.when()
+			.post("/products")
+		.then()
+			.statusCode(422)
+			.body("errors.message[0]", equalTo("Descrição precisa ter no mínimo 10 caracteres"));
+	}
+	
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndPriceIsNegative() throws JSONException {
+		postProductInstance.put("price", -2.0);
+		JSONObject newProduct = new JSONObject(postProductInstance);
+		
+		given()
+			.header("Content-type", "application/json")
+			.header("Authorization", "Bearer " + adminToken)
+			.body(newProduct)
+			.contentType(ContentType.JSON)
+			.accept(ContentType.JSON)
+		.when()
+			.post("/products")
+		.then()
+			.statusCode(422)
+			.body("errors.message[0]", equalTo("O preço deve ser positivo"));
+	}
+	
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndPriceIsZero() throws JSONException {
+		postProductInstance.put("price", 0.0);
+		JSONObject newProduct = new JSONObject(postProductInstance);
+		
+		given()
+			.header("Content-type", "application/json")
+			.header("Authorization", "Bearer " + adminToken)
+			.body(newProduct)
+			.contentType(ContentType.JSON)
+			.accept(ContentType.JSON)
+		.when()
+			.post("/products")
+		.then()
+			.statusCode(422)
+			.body("errors.message[0]", equalTo("O preço deve ser positivo"));
+	}
+
+
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndProductHasNoCategory() throws JSONException {
+		postProductInstance.put("categories", null);
+		JSONObject newProduct = new JSONObject(postProductInstance);
+		
+		given()
+			.header("Content-type", "application/json")
+			.header("Authorization", "Bearer " + adminToken)
+			.body(newProduct)
+			.contentType(ContentType.JSON)
+			.accept(ContentType.JSON)
+			.log()
+			.all()
+		.when()
+			.post("/products")
+		.then()
+			.statusCode(422)
+			.body("errors.message[0]", equalTo("Deve ter pelo menos uma categoria"));
+	}
+	
+	@Test
+	public void insertShouldReturnForbiddenWhenClientLogged() throws Exception {
+		JSONObject newProduct = new JSONObject(postProductInstance);
+		
+		given()
+			.header("Content-type", "application/json")
+			.header("Authorization", "Bearer " + clientToken)
+			.contentType(ContentType.JSON)
+			.accept(ContentType.JSON)
+			.body(newProduct)
+		.when()
+			.post("/products")
+		.then()
+			.statusCode(403);
+	}
+	
+	@Test
+	public void insertShouldReturnUnauthorizedWhenInvalidToken() throws Exception {
+		JSONObject newProduct = new JSONObject(postProductInstance);
+		
+		given()
+			.header("Content-type", "application/json")
+			.header("Authorization", "Bearer " + invalidToken)
+			.contentType(ContentType.JSON)
+			.accept(ContentType.JSON)
+			.body(newProduct)
+		.when()
+			.post("/products")
+		.then()
+			.statusCode(401);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

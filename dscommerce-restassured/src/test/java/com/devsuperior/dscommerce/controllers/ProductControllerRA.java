@@ -16,20 +16,33 @@ import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.devsuperior.dscommerce.tests.TokenUtil;
+
 import io.restassured.http.ContentType;
 
 
 public class ProductControllerRA {
 	
+	private String clientUsername, clientPassword, adminUsername, adminPassword;
+	private String adminToken, clientToken, invalidToken;
 	private Long existingProductId, nonExistingProductId, dependentProductId;
 	private String productName;
 	
 	private Map<String, Object> postProductInstance;
 
 	@BeforeEach
-	private void setup() {
+	private void setup() throws JSONException {
 		
 		baseURI = "http://localhost:8080";
+		
+		clientUsername = "maria@gmail.com";
+		clientPassword = "123456";
+		adminUsername = "alex@gmail.com";
+		adminPassword = "123456";
+		
+		clientToken = TokenUtil.obtainAccessToken(clientUsername, clientPassword);
+		adminToken = TokenUtil.obtainAccessToken(adminUsername, adminPassword);
+		invalidToken = adminToken + "xpto";
 		
 		productName = "Macbook";
 		
